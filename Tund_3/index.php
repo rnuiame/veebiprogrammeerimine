@@ -1,12 +1,16 @@
 <?php
   //echo "See on minu esimene PHP!";
-  $firstName = "xdRevor";
+  $firstName = "Revor";
   $lastName = "Nuiamäe";
   $dateToday = date("d.m.Y");
+  $dateToday1 = date("d");
+  $dateToday2 = date("m");
+  $dateToday3 = date("Y");
   $weekdayNow = date("N");
   $weekdayNamesET = ["esmaspäev", "teisipäev", "kolmapäev", "neljapäev", "reede", "laupäev", "pühapäev"];
+  $monthNames = ["jaanuar", "veebruar", "märts", "aprill", "mai", "juuni", "juuli", "august","september", "oktoober", "november", "detsember"];
   //echo $weekdayNamesET[1];
-  //var_dump($weekdayNamesET);
+  //var_dump($monthNames);
   $hourNow = date("G");
   $partOfDay = "";
   if ($hourNow < 8) {
@@ -46,7 +50,7 @@
   <p>Tundides tehtu: <a href= "photo.php">photo.php</a>
   <?php
  //echo "<p>Tänana kuupaev on: " .$dateToday .".</p> \n";
- echo "<p>Täna on " .$weekdayNamesET[$weekdayNow - 10] .", " .$dateToday .".</p> \n";
+ echo "<p>Täna on " .$weekdayNamesET[$weekdayNow - 1] .", " .$dateToday1 .". " . $monthNames[$dateToday2 - 1] ." " .$dateToday3 .".</p> \n";
  echo "<p>Lehe avamise hetkel oli kell: " .date("H:i:s") .". Käes oli " .$partOfDay .".</p> \n";
   ?>
   <img src="http://greeny.cs.tlu.ee/~rinde/veebiprogrammeerimine2018s/tlu_terra_600x400_1.jpg" alt="TLÜ Terra õppehoone">

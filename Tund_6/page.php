@@ -1,7 +1,4 @@
 <?php
-//kutsume välja funktisoonide faili
-require("functions.php");
-
   $firstName = "Kodanik";
   $lastName = "Tundmatu";
   $currentMonth = date("n");
@@ -16,7 +13,12 @@ require("functions.php");
   if (isset($_POST["lastName"])){
 	  $lastName = test_input($_POST["lastName"]);
   }
-  
+  function test_input($data) {
+    $data = trim($data);
+    $data = stripslashes($data);
+    $data = htmlspecialchars($data);
+    return $data;
+  }
   
   //harjutamiseks funktsioon
   function fullname(){
