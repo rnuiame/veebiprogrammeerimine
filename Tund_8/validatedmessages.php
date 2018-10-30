@@ -12,7 +12,7 @@
 	  header("Location: index_1.php");
 	  exit();
   }
-  $messages = readallunvalidatedmessages();
+  $messages = readallvalidatedmessagesbyuser();
   
 ?>
 <!DOCTYPE html>

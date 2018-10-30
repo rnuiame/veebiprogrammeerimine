@@ -7,6 +7,46 @@
 	//võtan kasutusele sessiooni
 	session_start();
 	
+	//kõigi valideeritud sõnumite lugemine kasutajate kaupa
+	function readallvalidatedmessagesbyuser(){
+		$msghtml = "";
+		$totalhtml = "";
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("SELECT id, firstname, lastname FROM vpusers1");
+		echo $mysqli->error;
+		$stmt->bind_result($idFromDb, $firstnameFromDb, $lastnameFromDb);
+		
+		$stmt2 = $mysqli->prepare("SELECT message, accepted FROM vpamsg WHERE acceptedby=?");
+		echo $mysqli->error;
+		$stmt2->bind_param("i", $idFromDb);
+		$stmt2->bind_result($msgFromDb, $acceptedFromDb);
+		
+		$stmt->execute();
+		//et hoida endmebaasist loetud andmeid pisut kauem mälus, et saaks edasi kasutada
+		$stmt->store_result();
+		while($stmt->fetch()){
+			$msghtml .= "<h3>" .$firstnameFromDb ." " .$lastnameFromDb ."</h3> \n";
+			$stmt2->execute();
+			$count = 0;
+			while($stmt2->fetch()){
+				$count += 1;
+				$msghtml .= "<p><b>";
+				if($acceptedFromDb == 1){
+					$msghtml .="Lubatud: ";
+				} else {
+					$msghtml .="Keelatud ";
+				}
+			if ($count > 0){
+				$msghtml .= "</b>" .$msgFromDb ."</p> \n";
+			}
+			}
+		$stmt2->close();
+		$stmt->close();
+		$mysqli->close();
+		return $msghtml;
+		}
+	}
+	
 	//valideerimata sõnumite lugemine
   function readallunvalidatedmessages(){
 	$notice = "<ul> \n";
@@ -29,7 +69,7 @@
   function readmsgforvalidation($editId){
 	$notice = "";
 	$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
-	$stmt = $mysqli->prepare("SELECT message FROM vpamsg1 WHERE id = ?");
+	$stmt = $mysqli->prepare("SELECT message FROM vpamsg WHERE id=?");
 	$stmt->bind_param("i", $editId);
 	$stmt->bind_result($msg);
 	$stmt->execute();
@@ -80,7 +120,7 @@
 
 	function validatemsg($editId, $validation){
 	$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
-	$stmt = $mysqli->prepare("UPDATE vpamsg SET validator=?, valid=?, validated=now() WHERE id=?");
+	$stmt = $mysqli->prepare("UPDATE vpamsg SET acceptedby=?, accepted=?, accepttime=now() WHERE id=?");
 	$stmt->bind_param("iii", $_SESSION["userId"], $validation, $editId);
 	if($stmt->execute()){
 	  echo "Õnnestus";
