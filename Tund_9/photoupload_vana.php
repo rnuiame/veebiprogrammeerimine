@@ -34,6 +34,11 @@
 				echo "Fail ei ole pilt.";
 				$uploadOk = 0;
 			}
+			// Check if file already exists
+			if (file_exists($target_file)) {
+				echo "Vabandage, selle nimega fail on juba olemas!.";
+				$uploadOk = 0;
+			}
 			// Check file size
 			if ($_FILES["fileToUpload"]["size"] > 2500000) {
 				echo "Vabandage, pilt on liiga suur.";
@@ -50,74 +55,18 @@
 				echo "Vabandage, valitud faili ei saa üles laadida!";
 			// if everything is ok, try to upload file
 			} else {
-				//sõltuvalt faili tüübist, loon sobiva pildiobjekti
-				if($imageFileType == "jpg" or $imageFileType == "jpeg"){
-					$myTempImage = imagecreatefromjpeg($_FILES["fileToUpload"]["tmp_name"]);
-				}
-				if($imageFileType == "png"){
-					$myTempImage = imagecreatefrompng($_FILES["fileToUpload"]["tmp_name"]);
-				}
-				if($imageFileType == "gif"){
-					$myTempImage = imagecreatefromgif($_FILES["fileToUpload"]["tmp_name"]);
-				}
-				//pildi originaalsuurus
-				$imageWidth = imagesx($myTempImage);
-				$imageHeight = imagesy($myTempImage);
-				//leian suuruse muutmise suhtarvu
-				if($imageWidth < $imageHeight){
-					$sizeRatio = $imageWidth / 600;
-				} else {
-					$sizeRatio = $imageHeight / 400;
-				}
-				$newWidth = round($imageWidth / $sizeRatio);
-				$newHeigth = round($imageHeight / $sizeRatio);
-				
-				$myImage = resizeImage($myTempImage, $imageWidth, $imageHeight, $newWidth, $newHeigth);
-				
-				//faili salvestamine, jälle sõltuvalt failitüübist
-				if($imageFileType == "jpg" or $imageFileType == "jpeg"){
-					if(imagejpeg($myImage, $target_file, 90)){
-						echo "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti edukalt üles!";
-					} else {
-						echo "Vabandage, faili üleslaadimisel tekkis viga.";
-					}
-				}
-				if($imageFileType == "png"){
-					if(imagepng($myImage, $targer_file, 6)){
-						echo "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti edukalt üles!";
-					} else {
-						echo "Vabandage, faili üleslaadimisel tekkis viga.";
-					}
-				}
-				if($imageFileType == "gif"){
-					if(imagegif($myImage, $targer_file)){
-						echo "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti edukalt üles!";
-					} else {
-						echo "Vabandage, faili üleslaadimisel tekkis viga.";
-					}
-				}
-				
-				imagedestroy($myTempImage);
-				imagedestroy($myImage);
-				
- 				/*if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
+				if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
 					echo "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti edukalt üles!";
 				} else {
 					echo "Vabandage, faili üleslaadimisel tekkis viga.";
-				} */
+				}
 			}	
 		}//if !empty lõppeb
 }//siin lõppeb nupuvajutuse kontroll
-
-	function resizeImage($image, $ow, $oh, $w, $h){
-		$newImage = imagecreatetruecolor($w, $h);
-		imagecopyresampled($newImage, $image, 0, 0, 0, 0, $w, $h, $ow, $oh);
-		return $newImage;
-	}
 	
-    //lehe päise laadimine
-    $pageTitle = "Fotode üleslaadimine";
-    require("header.php");
+  //lehe päise laadimine
+  $pageTitle = "Fotode üleslaadimine";
+  require("header.php");
   
 ?>
 
@@ -134,7 +83,6 @@
     <input type="file" name="fileToUpload" id="fileToUpload"><br>
     <input type="submit" value="Lae pilt üles" name="submitImage">
   </form>
-  
 	
   </body>
 </html>

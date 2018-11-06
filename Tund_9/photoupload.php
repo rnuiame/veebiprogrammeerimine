@@ -25,7 +25,10 @@
 			//$target_file = $target_dir . basename($_FILES["fileToUpload"]["name"]);
 			//$imageFileType = strtolower(pathinfo($target_file,PATHINFO_EXTENSION));
 			$timeStamp = microtime(1) * 10000;
-			$target_file = $target_dir ."vp_" .$timeStamp ."." .$imageFileType;
+			
+			$target_file_name = "vp_" .$timeStamp ."." .$imageFileType;
+			$target_file = $target_dir .$target_file_name;
+			
 			$check = getimagesize($_FILES["fileToUpload"]["tmp_name"]);
 			if($check !== false) {
 				echo "Fail on " . $check["mime"] . " pilt.";
@@ -74,10 +77,24 @@
 				
 				$myImage = resizeImage($myTempImage, $imageWidth, $imageHeight, $newWidth, $newHeigth);
 				
+				//vesimärk
+				$waterMark = imagecreatefrompng("../vp_picfiles/vp_logo_w100_overlay.png");
+				$waterMarkWidth = imagesx($waterMark);
+				$waterMarkHeight = imagesy($waterMark);
+				$waterMarkPosX = $newWidth - $waterMarkWidth - 10;
+				$waterMarkPosY = $newHeigth - $waterMarkHeight - 10;
+				imagecopy($myImage, $waterMark, $waterMarkPosX, $waterMarkPosY, 0, 0, $waterMarkWidth, $waterMarkHeight);
+				
+				//tekst vesimärgina
+				$textToImage = "Veebiprogrammeerimine";
+				$textColor = imagecolorallocatealpha($myImage, 255, 255, 255, 60); //mis pilt?, R, G, B, Alpha 0...127
+				imagettftext($myImage, 20, 0, 10, 30, $textColor, "../vp_picfiles/ARIALBD.TTF", $textToImage);
+				
 				//faili salvestamine, jälle sõltuvalt failitüübist
 				if($imageFileType == "jpg" or $imageFileType == "jpeg"){
 					if(imagejpeg($myImage, $target_file, 90)){
 						echo "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti edukalt üles!";
+						addPhotoData($target_file_name, $_POST["altText"], $_POST["privacy"]);
 					} else {
 						echo "Vabandage, faili üleslaadimisel tekkis viga.";
 					}
@@ -85,6 +102,7 @@
 				if($imageFileType == "png"){
 					if(imagepng($myImage, $targer_file, 6)){
 						echo "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti edukalt üles!";
+						addPhotoData($target_file_name, $_POST["altText"], $_POST["privacy"]);
 					} else {
 						echo "Vabandage, faili üleslaadimisel tekkis viga.";
 					}
@@ -92,6 +110,7 @@
 				if($imageFileType == "gif"){
 					if(imagegif($myImage, $targer_file)){
 						echo "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti edukalt üles!";
+						addPhotoData($target_file_name, $_POST["altText"], $_POST["privacy"]);
 					} else {
 						echo "Vabandage, faili üleslaadimisel tekkis viga.";
 					}
@@ -99,6 +118,7 @@
 				
 				imagedestroy($myTempImage);
 				imagedestroy($myImage);
+				imagedestroy($waterMark);
 				
  				/*if (move_uploaded_file($_FILES["fileToUpload"]["tmp_name"], $target_file)) {
 					echo "Fail ". basename( $_FILES["fileToUpload"]["name"]). " laeti edukalt üles!";
@@ -132,9 +152,17 @@
   <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post" enctype="multipart/form-data">
     <label>Vali üleslaitav pildifail (kuni 2.5 MB):</label><br>
     <input type="file" name="fileToUpload" id="fileToUpload"><br>
+	<label>Alt tekst: </label>
+	<input type="text" name="altText">
+	<br>
+	<label>Määra pildi kasutusõigused</label>
+	<br>
+	<input type="radio" name="privacy" value="1"><label>Avalik pilt</label>
+	<input type="radio" name="privacy" value="2"><label>Ainult sisselogunud kasutajatele</label>
+	<input type="radio" name="privacy" value="3" checked><label>Privaatne</label>
+	<br>
     <input type="submit" value="Lae pilt üles" name="submitImage">
   </form>
-  
-	
+
   </body>
 </html>
