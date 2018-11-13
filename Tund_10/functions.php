@@ -111,6 +111,7 @@
 					$_SESSION["userId"] = $idFromDb;
 					$_SESSION["firstName"] = $firstnameFromDb;
 					$_SESSION["lastName"] = $lastnameFromDb;
+					readprofilecolors();
 					$stmt ->close();
 					$mysqli->close();
 					header("Location: main.php");
@@ -276,6 +277,30 @@
 	}
 	$stmt->close();
 	$mysqli->close();
+  }
+  
+  //kasutajate nimekiri
+  function listusers(){
+	$notice = "";
+	$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+	$stmt = $mysqli->prepare("SELECT firstname, lastname, email FROM vpusers1 WHERE id !=?");
+	
+	echo $mysqli->error;
+	$stmt->bind_param("i", $_SESSION["userId"]);
+	$stmt->bind_result($firstname, $lastname, $email);
+	if($stmt->execute()){
+	  $notice .= "<ol> \n";
+	  while($stmt->fetch()){
+		  $notice .= "<li>" .$firstname ." " .$lastname .", kasutajatunnus: " .$email ."</li> \n";
+	  }
+	  $notice .= "</ol> \n";
+	} else {
+		$notice = "<p>Kasutajate nimekirja lugemisel tekkis tehniline viga! " .$stmt->error;
+	}
+	
+	$stmt->close();
+	$mysqli->close();
+	return $notice;
   }
 
 	function addCat($catName, $catColor, $catTail){
