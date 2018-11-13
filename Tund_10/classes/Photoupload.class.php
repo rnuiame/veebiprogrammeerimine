@@ -1,5 +1,5 @@
 <?php
-class Test
+class Photoupload
 {
 	private $tempName;
 	private $imageFileType;
