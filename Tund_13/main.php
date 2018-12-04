@@ -13,6 +13,7 @@
 	  exit();
   }
   $pageTitle = "Pealeht";
+  $scripts = '<script type="text/javascript" src="javascript/setrandompic.js" defer></script>' ."\n";
   require("header.php");
   
 ?>
@@ -30,5 +31,9 @@
 	  <li>Avalike fotode <a href="gallery.php">galerii</a></li>
 	  <li>Privaatsete fototde <a href="privatepic.php">galerii</a></li>
 	</ul>
+	<hr>
+	<div id="pic">
+	
+	</div>
   </body>
 </html> 

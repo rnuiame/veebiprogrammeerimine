@@ -7,6 +7,19 @@
 	//võtan kasutusele sessiooni
 	session_start();
 	
+	function findTotalPublicImages(){
+		$privacy = 2;
+		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
+		$stmt = $mysqli->prepare("SELECT COUNT(*) FROM vpphotos WHERE privacy<=? AND deleted IS NULL");
+		$stmt->bind_param("i", $privacy);
+		$stmt->bind_result($imageCount);
+		$stmt->execute();
+		$stmt->fetch();
+		$stmt->close();
+		$mysqli->close();
+		return $imageCount;	
+	}
+	
 	function listprivatephotos($privacy){
 		$html = "";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
@@ -16,8 +29,8 @@
 		$stmt->bind_result($filenameFromDb, $alttextFromDb);
 		$stmt->execute();
 		while($stmt->fetch()){
-			//<img src="kataloog/fail" alt="tekst">
-			$html .= '<img src="' .$GLOBALS["thumbDir"] .$filenameFromDb .'" alt="' .$alttextFromDb .'">' ."\n";
+			//<img src="kataloog/fail" alt="tekst" data-fn="failinimi">
+			$html .= '<img src="' .$GLOBALS["thumbDir"] .$filenameFromDb .'" alt="' .$alttextFromDb .'" data-fn="' .$filenameFromDb .'">' ."\n";
 		}
 		if(empty($html)){
 			$html = "<p>Kahjuks privaatseid pilte pole</p> \n";
@@ -50,10 +63,10 @@
 	function listpublicphotospage($privacy){
 		$html = "";
 		$mysqli = new mysqli($GLOBALS["serverHost"], $GLOBALS["serverUsername"], $GLOBALS["serverPassword"], $GLOBALS["database"]);
-		$stmt = $mysqli->prepare("SELECT filename, alttext FROM vpphotos WHERE privacy<=? AND deleted IS NULL LIMIT 3,6");
+		$stmt = $mysqli->prepare("SELECT id, filename, alttext FROM vpphotos WHERE privacy<=? AND deleted IS NULL LIMIT 3,6");
 		echo $mysqli->error;
 		$stmt->bind_param("i", $privacy);
-		$stmt->bind_result($filenameFromDb, $alttextFromDb);
+		$stmt->bind_result($idFromDb, $filenameFromDb, $alttextFromDb);
 		$stmt->execute();
 		while($stmt->fetch()){
 			//<img src="kataloog/fail" alt="tekst">

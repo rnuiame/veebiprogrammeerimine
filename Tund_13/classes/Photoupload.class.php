@@ -2,7 +2,7 @@
   class Photoupload {
 	private $tempName;
 	public $imageFileType;
-  public $imageSize;
+	public $imageSize;
 	public $fileName;
 	private $myTempImage;
 	private $myImage;
